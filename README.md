@@ -1,9 +1,9 @@
 # Xianjing_Huang_Mini_Proj_11
-[![CI](https://github.com/nogibjj/Xianjing_Huang_Mini_Proj_10/actions/workflows/ci.yml/badge.svg)](https://github.com/nogibjj/Xianjing_Huang_Mini_Proj_10/actions/workflows/ci.yml)
+[![CI](https://github.com/Remi12138/Xianjing_Huang_Mini_Proj_11/actions/workflows/ci.yml/badge.svg)](https://github.com/Remi12138/Xianjing_Huang_Mini_Proj_11/actions/workflows/ci.yml)
 
 ### Directory Tree Structure
 ```
-Xianjing_Huang_Mini_Proj_10/
+Xianjing_Huang_Mini_Proj_11/
 ├── .devcontainer/
 │   ├── devcontainer.json
 │   └── Dockerfile
@@ -14,109 +14,90 @@ Xianjing_Huang_Mini_Proj_10/
 │   └── drinks.csv
 ├── imgs/
 ├── mylib/
-│   └── lib.py
+│   ├── extract.py
+│   ├── load.py
+│   ├── query.py
+│   └── visualize.py
 ├── .gitignore
+├── alcohol_servings_breakdown.png
+├── job.py
+├── LINCENSE
 ├── main.py
 ├── Makefile
-├── output_data_log.md
 ├── README.md
 ├── requirements.txt
 ├── setup.sh
-└── test_main.py
+├── test_main.py
+└── top_10_countries.png
 ```
 `.devcontainer`: config for a Python and PySpark environment.
 
 `lib.py`: 
-* start a spark session via `start`
-* end the spark session via `end`
-* extract the dataset via `extract`
-* load the dataset via `load`
-* get descriptive statistics via `descibe`
-* query the dataset via `query`
-* transform to add 2 columns on the dataset via `transform`
+* `extract.py`: downloads a file from the specified URL and saves it to the specified DBFS path.
+* `load.py`: loads data from a CSV file into a PySpark DataFrame and saves it as a table.
+* `query.py`: runs an SQL query to select the top 10 countries by total alcohol consumption, saves the result to a Parquet file, and displays it.
+* `visualize.py`: visualizes the saved query result by creating:
+    1. a bar plot of the top 10 countries by total alcohol consumption.
+    2. a stacked bar plot of beer, spirit, and wine servings for the top 10 countries.
 
-`main.py`: use PySpark to perform data processing, include query and transformation.
+`main.py`: perform extract, load, query, and visualize.
 
-`test_main.py`: test functions in main.
+`job.py`: utilize the Databricks API to run a job on my Databricks workspace such that when a user pushes to this repo it will initiate a job run.
 
-`Makefile`: defines scripts for common project tasks such as install, lint format, test, and 'generate and push report'.
+`test_main.py`: test if a file path exists and auth settings still work.
 
-`.github/workflows/ci.yml`: defines the GitHub Actions workflow for format, install, lint, test, and generate_and_push.
+`Makefile`: defines scripts for common project tasks such as install, lint format, test, and job run.
+
+`.github/workflows/ci.yml`: defines the GitHub Actions workflow for format, install, lint, test, and run databricks job.
 
 `requirements.txt`: project dependencies.
 
 ### Requirements
-* Use PySpark to perform data processing on a large dataset
-* Include at least one Spark SQL query and one data transformation
+* Create a data pipeline using Databricks
+* Include at least one data source and one data sink
 
 ### Preparation
-1. Open codespaces
-2. Wait for container to be built and pinned requirements from `requirements.txt` to be installed
-3. If running locally, `git clone` the repository and use `make install`
-   ![0](/imgs/000.png)
-4. run: `python3 main.py`
+1. Create a Databricks workspace on Azure.
+2. Connect Github account to Databricks Workspace.
+3. Create global init script for cluster start to store enviornment variables.
+4. Clone repo into Databricks workspace.
+5. Create a Databricks cluster that supports Pyspark, link requirements.txt to Libraries.
+6. Create a job on Databricks to build pipeline.
+7. Extract task (Data Source): mylib/extract.py
+8. Load Task: mylib/load.py
+9. Query Task (Data Sink): mylib/query.py. The query result saved as a Parquet file.
+10. Visualize Task (Data Sink): mylib/visualize.py. Visualization plots saved as PNG files: alcohol_servings_breakdown.png, top_10_countries.png
 
-### Check format and test errors
-1. Format code `make format`
-   ![1](/imgs/001.png)
-2. Lint code `make lint`
-   ![2](/imgs/002.png)
-3. Test code `make test`
-   ![3](/imgs/003.png)
+### Job Run from Automated Trigger
+The workflow created in Databricks consists of 4 tasks: Extract, Load, Query and Visualize.
+<img src="/imgs/004.png" alt="4" style="height:100px;">
+![5](/imgs/005.png)
+![6](/imgs/006.png)
+
+### Install, check format and test errors
+1. Install dependencies `make install`
+
+   <img src="/imgs/000.png" alt="0" style="height:80px;">
+2. Format code `make format`
+
+   <img src="/imgs/001.png" alt="1" style="height:50px;">
+3. Lint code `make lint`
+
+   <img src="/imgs/002.png" alt="2" style="height:50px;">
+4. Test code `make test`
+
+   <img src="/imgs/003.png" alt="3" style="height:100px;">
+
+### Data Extracting
+![7](/imgs/007.png)
 
 ### Data Loading
-The dataset records alcohol consumption in different countries.
-Sample data structure:
+![8](/imgs/008.png)
 
-|          country|beer_servings|spirit_servings|wine_servings|total_litres_of_pure_alcohol|
-|-----------------|-------------|---------------|-------------|----------------------------|
-|      Afghanistan|          0.0|            0.0|          0.0|                         0.0|
-|          Albania|         89.0|          132.0|         54.0|                         4.9|
-|          Algeria|         25.0|            0.0|         14.0|                         0.7|
+### Data Query
+Run an SQL query to select the top 10 countries by total alcohol consumption, saves the result to a Parquet file, and displays it.
+![9](/imgs/009.png)
 
-### Data Description
-After loading, basic statistics are generated to summarize the dataset.
-
-|summary|    country|     beer_servings|  spirit_servings|    wine_servings|total_litres_of_pure_alcohol|
-|-------|-----------|------------------|-----------------|-----------------|----------------------------|
-|  count|        193|               193|              193|              193|                         193|
-|   mean|       NULL|106.16062176165804|80.99481865284974|49.45077720207254|           4.717098425205198|
-| stddev|       NULL| 101.1431025393134|88.28431210968618|79.69759845763012|          3.7732981308860754|
-|    min|Afghanistan|               0.0|              0.0|              0.0|                         0.0|
-|    max|   Zimbabwe|             376.0|            438.0|            370.0|                        14.4|
-
-
-### Data Querying
-Query data using spark sql.
-
-Example query: Top 5 countries with the highest total litres of pure alcohol
-```sql
-  SELECT country, total_litres_of_pure_alcohol
-  FROM DrinkData
-  ORDER BY total_litres_of_pure_alcohol
-  DESC
-  LIMIT 5
-```
-|  country|total_litres_of_pure_alcohol|
-|---------|----------------------------|
-|  Belarus|                        14.4|
-|Lithuania|                        12.9|
-|  Andorra|                        12.4|
-|  Grenada|                        11.9|
-|   France|                        11.8|
-
-### Data Transformation
-
-The transformation step adds columns to the dataset, including:
-- **total_alcohol_servings**: total servings of beer, spirit, and wine servings.
-- **average_servings**: average servings of beer, spirit, and wine servings.
-
-|          country|beer_servings|spirit_servings|wine_servings|total_litres_of_pure_alcohol|total_alcohol_servings|average_servings|
-|-----------------|-------------|---------------|-------------|----------------------------|----------------------|----------------|
-|      Afghanistan|          0.0|            0.0|          0.0|                         0.0|                   0.0|             0.0|
-|          Albania|         89.0|          132.0|         54.0|                         4.9|                 275.0|           91.67|
-|          Algeria|         25.0|            0.0|         14.0|                         0.7|                  39.0|            13.0|
-
-### PySpark Log
-Generate and push PySpark output log via CI/CD.
-You can find it here [PySpark Log](/output_data_log.md).
+### Visualization
+![10](/alcohol_servings_breakdown.png)
+![11](/top_10_countries.png)
